@@ -30,6 +30,8 @@ class ApiHelper {
   }
 }
 
+export default ApiHelper;
+
 /* 
 db.products.find({}) //all Products
 db.products.find({

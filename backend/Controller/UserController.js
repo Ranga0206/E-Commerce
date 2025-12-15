@@ -15,6 +15,7 @@ export const registerUser = async (req, res, next) => {
   if (!password) {
     return next(new HandleError("Password cannot be empty", 400));
   }
+
   // console.log(name, email, password);
   const user = await User.create({
     name,

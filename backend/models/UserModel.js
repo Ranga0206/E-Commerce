@@ -45,12 +45,13 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-userSchema.pre("save", function () {
-  if (!this.isModified()) {
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) {
     return;
   }
   this.password = bcryptjs.hashSync(this.password, 10);
 });
+
 userSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRE,

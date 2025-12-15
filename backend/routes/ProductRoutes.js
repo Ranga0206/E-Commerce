@@ -6,9 +6,10 @@ import {
   updateProduct,
   deleteProduct,
 } from "../Controller/ProductController.js";
+import { verfiyUser } from "../helper/UserAuth.js";
 
 const router = express.Router();
-router.route("/products").get(getAllProducts).post(addProduct);
+router.route("/products").get(verfiyUser, getAllProducts).post(addProduct);
 router
   .route("/product/:id")
   .get(getSingleProduct)
