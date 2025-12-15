@@ -6,6 +6,20 @@ dotenv.config({ path: "backend/Config/config.env" });
 const PORT = process.env.PORT || 3000;
 connectDB();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is Runing on http://localhost:${PORT}`);
+});
+
+process.on("uncaughtException", (err) => {
+  console.log(`Error : ${err.message}`);
+  console.log(`Server is shutting down,due to uncaught Exception`);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(`Error : ${err.message}`);
+  console.log(`Server is shutting down,due to unhandled rejection`);
+  server.close(() => {
+    process.exit(1);
+  });
 });

@@ -1,4 +1,5 @@
 import Product from "../models/ProductModel.js";
+import errorHandler from "../helper/handleError.js";
 // Add Product
 const addProduct = async (req, res) => {
   const product = await Product.create(req.body);
@@ -9,22 +10,42 @@ const addProduct = async (req, res) => {
 };
 
 // GET all Products
-const getAllProducts = async (req, res) => {
-  const products = await Product.find();
-  return res.status(200).json({ success: true, products });
+const getAllProducts = async (req, res, next) => {
+  const resultsPerPage = 4;
+  // const products = await Product.find();
+  const apiHelper = new ApiHelper(Product.find(), req.query).search().filter();
+
+  const filteredQuery = apiHelper.query.clone();
+  const productCount = await filteredQuery.query.countDocuments();
+  const totalPages = Math.ceil(productCount / resultsPerPage);
+  const page = Number(req.query.page) || 1;
+
+  if (totalPages > 0 && page > totalPages) {
+    return next(new errorHandler("This Page doesn't exist", 404));
+  }
+  apiHelper.pagination(resultsPerPage);
+  const products = await apiHelper.query;
+
+  return res.status(200).json({
+    success: true,
+    products,
+    productCount,
+    resultsPerPage,
+    totalPages,
+    currentPage: page,
+  });
 };
 
 //Update Product
-const updateProduct = async (req, res) => {
+const updateProduct = async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
   });
   if (!product) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Product Not Found" });
+    //return res.status(500).json({ success: false, message: "Product Not Found" });
+    return next(new errorHandler("Product Not Found", 404));
   }
 
   return res.status(200).json({ success: true, product });
@@ -32,13 +53,11 @@ const updateProduct = async (req, res) => {
 
 //delete product
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findByIdAndDelete(id);
   if (!product) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Product Not Found" });
+    return next(new errorHandler("Product Not Found", 404));
   }
   return res
     .status(200)
@@ -46,14 +65,12 @@ const deleteProduct = async (req, res) => {
 };
 
 //Get Single Product By Id
-const getSingleProduct = async (req, res) => {
+const getSingleProduct = async (req, res, next) => {
   //console.log(req.params.id)
   const id = req.params.id;
   const product = await Product.findById(id);
   if (!product) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Product not found" });
+    return next(new errorHandler("Product Not Found", 404));
   }
   return res.status(200).json({ success: true, product });
 };
