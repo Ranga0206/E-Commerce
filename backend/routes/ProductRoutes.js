@@ -6,14 +6,17 @@ import {
   updateProduct,
   deleteProduct,
 } from "../Controller/ProductController.js";
-import { verfiyUser } from "../helper/UserAuth.js";
+import { roleBasedAccess, verfiyUser } from "../helper/UserAuth.js";
 
 const router = express.Router();
-router.route("/products").get(verfiyUser, getAllProducts).post(addProduct);
+router
+  .route("/products")
+  .get(verfiyUser, getAllProducts)
+  .post(verfiyUser, roleBasedAccess("admin"), addProduct);
 router
   .route("/product/:id")
   .get(getSingleProduct)
-  .put(updateProduct)
-  .delete(deleteProduct);
+  .put(verfiyUser, roleBasedAccess("admin"), updateProduct)
+  .delete(verfiyUser, roleBasedAccess("admin"), deleteProduct);
 
 export default router;

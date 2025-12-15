@@ -47,6 +47,9 @@ export const loginUser = async (req, res, next) => {
     return next(new HandleError("Email or Password cannot be empty", 400));
   }
   const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    return next(new HandleError("Invaild Email Id or Password", 401));
+  }
   const isValidPassword = await user.verifyPassword(password);
 
   if (!isValidPassword) {
@@ -56,4 +59,11 @@ export const loginUser = async (req, res, next) => {
   sendToken(user, 200, res);
 
   // res.json({ success: true, user });
+};
+
+//Logout
+export const logOut = async (req, res, next) => {
+  const options = { expires: new Date(Date.now()), httpOnly: true };
+  res.cookie("token", null, options);
+  res.status(200).json({ success: true, meassage: "Successfully logged Out" });
 };
