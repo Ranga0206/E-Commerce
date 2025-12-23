@@ -1,0 +1,48 @@
+<div
+  style="
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f4f4f4;
+  "
+>
+  <div
+    style="
+      max-width: 500px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+    "
+  >
+    <h2 style="color: #333">Password Reset Request</h2>
+    <p>Hello,</p>
+    <p>
+      You requested to reset your Password. click the button below to continue .
+    </p>
+    <a
+      href="${restPasswordURL}"
+      style="
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: #ffff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+      "
+    >
+      Reset Password
+    </a>
+    <p style="margin-top: 20px">
+      or copy and paste this link in your browser:<br />
+      <a href="${restPasswordURL}">${restPasswordURL}</a>
+    </p>
+
+    <p style="color: red; font-weight: bold">
+      This link will expire in 30 minutes.
+    </p>
+    <p>If you didn't request a password reset, please ignore this email.</p>
+    <br />
+    <p>Regards,<br />Your Website Team</p>
+  </div>
+</div>
