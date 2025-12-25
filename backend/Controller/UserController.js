@@ -4,7 +4,7 @@ import { sendEmail } from "../helper/sendEmail.js";
 import User from "../models/UserModel.js";
 import crypto from "crypto";
 
-//User  Creation
+//Add New User Profile
 export const registerUser = async (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -70,7 +70,7 @@ export const logOut = async (req, res, next) => {
   res.status(200).json({ success: true, meassage: "Successfully logged Out" });
 };
 
-//Reset password and sample meassage
+//Reset password link to mailid and sample meassage
 export const forgetPassword = async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -161,6 +161,7 @@ export const forgetPassword = async (req, res, next) => {
   }
 };
 
+//reset User Password
 export const resetPassword = async (req, res, next) => {
   const resetPasswordToken = crypto
     .createHash("sha256")
@@ -186,4 +187,41 @@ export const resetPassword = async (req, res, next) => {
   user.resetPasswordExpire = undefined;
   await user.save();
   sendToken(user, 200, res);
+};
+
+//Get User Profile
+export const profile = async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({ success: true, user });
+};
+
+//Update User Password
+export const updatePassword = async (req, res, next) => {
+  const { oldpassword, newpassword, confirmPassword } = req.body;
+  const user = await User.findById(req.user.id).select("+password");
+  const isCorrect = await user.verifyPassword(oldpassword);
+  if (!isCorrect) {
+    return next(new HandleError("Incorrect Old Password...", 400));
+  }
+  if (newpassword !== confirmPassword) {
+    return next(
+      new HandleError("Confirm password must be same as new password..", 400)
+    );
+  }
+  user.password = newpassword;
+  await user.save();
+  sendToken(user, 200, res);
+};
+
+//Update User Profile
+export const updateProfile = async (req, res, next) => {
+  const { name, email } = req.body;
+  const updateUserDetails = { name, email };
+  const user = await User.findByIdAndUpdate(req.user.id, updateUserDetails, {
+    new: true,
+    runValidators: true,
+  });
+  res
+    .status(200)
+    .json({ success: true, message: "Profile Updated SuccessFully", user });
 };
