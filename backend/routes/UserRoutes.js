@@ -1,5 +1,5 @@
 import express from "express";
-import { verfiyUser } from "../helper/UserAuth.js";
+import { verfiyUser, roleBasedAccess } from "../helper/UserAuth.js";
 import {
   loginUser,
   logOut,
@@ -9,6 +9,10 @@ import {
   profile,
   updatePassword,
   updateProfile,
+  getAllUsers,
+  getSingleUser,
+  updateUserRole,
+  deleteUser,
 } from "../Controller/UserController.js";
 
 const router = express.Router();
@@ -21,5 +25,16 @@ router.route("/reset/:token").post(resetPassword);
 router.route("/profile").get(verfiyUser, profile);
 router.route("/password/update").put(verfiyUser, updatePassword);
 router.route("/profile/update").put(verfiyUser, updateProfile);
+
+//Admin routes
+router
+  .route("/admin/users")
+  .get(verfiyUser, roleBasedAccess("admin"), getAllUsers);
+
+router
+  .route("/admin/users/:id")
+  .get(verfiyUser, roleBasedAccess("admin"), getSingleUser)
+  .put(verfiyUser, roleBasedAccess("admin"), updateUserRole)
+  .delete(verfiyUser, roleBasedAccess("admin"), deleteUser);
 
 export default router;

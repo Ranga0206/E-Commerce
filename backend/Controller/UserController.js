@@ -85,7 +85,7 @@ export const forgetPassword = async (req, res, next) => {
     //console.log(resetToken);
   } catch (error) {
     return next(
-      new HandleError("Could not save reset token,Try again later..", 500)
+      new HandleError("Could not save reset token,Try again later..", 500),
     );
   }
   const resetPasswordUrl = `${req.protocol}://${req.host}/reset/${resetToken}`;
@@ -156,7 +156,7 @@ export const forgetPassword = async (req, res, next) => {
     user.resetPasswordExpire = undefined;
     await user.save({ validateBeforeSave: false });
     return next(
-      new HandleError("Email could not be send try again later..", 500)
+      new HandleError("Email could not be send try again later..", 500),
     );
   }
 };
@@ -179,7 +179,7 @@ export const resetPassword = async (req, res, next) => {
 
   if (password !== confirmPassword) {
     return next(
-      new HandleError("Password doesn't match please both password", 400)
+      new HandleError("Password doesn't match please both password", 400),
     );
   }
   user.password = password;
@@ -205,7 +205,7 @@ export const updatePassword = async (req, res, next) => {
   }
   if (newpassword !== confirmPassword) {
     return next(
-      new HandleError("Confirm password must be same as new password..", 400)
+      new HandleError("Confirm password must be same as new password..", 400),
     );
   }
   user.password = newpassword;
@@ -224,4 +224,58 @@ export const updateProfile = async (req, res, next) => {
   res
     .status(200)
     .json({ success: true, message: "Profile Updated SuccessFully", user });
+};
+
+//Get All Users
+export const getAllUsers = async (req, res) => {
+  const users = await User.find();
+  res.status(200).json({
+    success: true,
+    users,
+  });
+};
+
+//Get User BY ID
+
+export const getSingleUser = async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new HandleError("User doesn't exit : ", 400));
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
+
+//updateUserRole
+
+export const updateUserRole = async (req, res, next) => {
+  const { role } = req.body;
+  const id = req.params.id;
+  const updatedRole = { role };
+  const user = await User.findByIdAndUpdate(id, updatedRole, { new: true });
+  if (!user) {
+    return next(new HandleError("User doesn't exit : ", 400));
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
+
+//deleteUser
+
+export const deleteUser = async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new HandleError("User doesn't exit : ", 400));
+  }
+  await User.findByIdAndDelete(id);
+  res.status(200).json({
+    success: true,
+    meassage: "User details deleted successfully",
+  });
 };
